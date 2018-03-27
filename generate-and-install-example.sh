@@ -1,5 +1,7 @@
-read -p "Enter your namespace for the example application: "  namespace
-read -p "Enter the Docker repository in which to place the built operator (example: quay.io/mynamespace/example-sao): " repository
+#!/usr/bin/env sh
+
+[[ "$1" ]] && namespace="$1" || read -p "Enter your namespace for the example application: "  namespace
+[[ "$2" ]] && repository="$2" || read -p "Enter the Docker repository in which to place the built operator (example: quay.io/mynamespace/example-sao): " repository
 
 if [ -z "$namespace" ]; then
     echo "Missing namespace";
@@ -13,7 +15,7 @@ fi
 
 TEMP_DIR=`mktemp -d`
 
-function cleanup {      
+function cleanup {
   rm -rf "$TEMP_DIR"
 }
 
@@ -22,7 +24,7 @@ trap cleanup EXIT
 # Copy the yaml files and Dockerfile into the temp directory
 cp Dockerfile $TEMP_DIR
 cp *.yaml $TEMP_DIR
-cp -r example-chart $TEMP_DIR/
+cp -r chart $TEMP_DIR/
 cd $TEMP_DIR
 
 # Replace all required "variables"
@@ -36,5 +38,5 @@ docker push $repository
 
 # Create in cluster
 echo "Registering app"
-kubectl create -f example-app.crd.yaml
-kubectl create -f example-app-operator.v0.0.1.clusterserviceversion.yaml
+( cat *.crd.yaml | kubectl replace -f - ) || ( cat *.crd.yaml | kubectl create -f - )
+( cat *.clusterserviceversion.yaml | kubectl replace -f - ) || ( cat *.clusterserviceversion.yaml | kubectl create -f - )

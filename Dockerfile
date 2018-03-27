@@ -1,4 +1,1 @@
-FROM quay.io/coreos/sao:latest
-ADD example-chart /chart
-ADD example-config.yaml config.yaml
-CMD ["start", "--config", "/config.yaml"]
+FROM quay.io/steigr/lostromos:v0.1.0 AS sao
