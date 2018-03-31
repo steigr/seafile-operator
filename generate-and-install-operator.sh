@@ -2,6 +2,7 @@
 
 [[ "$1" ]] && namespace="$1" || read -p "Enter your namespace for the example application: "  namespace
 [[ "$2" ]] && repository="$2" || read -p "Enter the Docker repository in which to place the built operator (example: quay.io/mynamespace/example-sao): " repository
+[[ "$3" ]] && prefix="$3" || read -p "Enter the Prefix for Deployments: (example: myapp): " prefix
 
 if [ -z "$namespace" ]; then
     echo "Missing namespace";
@@ -30,6 +31,7 @@ cd $TEMP_DIR
 # Replace all required "variables"
 sed -i.bak "s/YOUR_NAMESPACE_HERE/${namespace}/g" *.yaml
 sed -i.bak "s/YOUR_REPO_IMAGE_HERE/${repository//\//\\/}/g" *.yaml
+sed -i.bak "s/YOUR_PREFIX_HERE/${prefix}/g" *.yaml
 
 # Build and push
 echo "Building and pushing stateless app operator"

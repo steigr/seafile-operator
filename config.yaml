@@ -12,11 +12,7 @@ crd:
   version: v1alpha1
   namespace: YOUR_NAMESPACE_HERE
 helm:
-  chart: /chart
+  chart: chart
   namespace: YOUR_NAMESPACE_HERE
   tiller: tiller-deploy.kube-system:44134
-  wait: true
-  waitTimeout: 120
-logging:
-  debug: true
-  pretty: true
+  releasePrefix: YOUR_PREFIX_HERE
