@@ -16,4 +16,4 @@ data:
   SEAFILE_WEBSERVER_PORT: {{ printf "%.0f" $spec.http.externalPort | quote }}
   SEAFILE_FILESERVER_PORT:  {{ printf "%.0f" $spec.fileserver.externalPort | quote }}
   SEAFILE_DATA_DIR: "/seafile"
-  SEAFILE_SERVER_URL: {{ required "no spec.download.url given"   $spec.download.url | quote }}
+  SEAFILE_SERVER_URL: {{ required "no spec.download.url given" $spec.download.url | quote }}
