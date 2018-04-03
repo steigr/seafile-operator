@@ -24,4 +24,29 @@ spec:
         backend:
           serviceName: {{ $app }}
           servicePort: http
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $app }}-fileserver
+  labels:
+    app: {{ $app }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    ingress.kubernetes.io/rewrite-target: "/"
+{{ if $spec.ingress.annotations }}
+{{ toYaml $spec.ingress.annotations | indent 4 }}
+{{ end }}
+spec:
+  rules:
+  - host: {{ $spec.ingress.hostname }}
+    http:
+      paths:
+      - path: /seafhttp
+        backend:
+          serviceName: {{ $app }}
+          servicePort: fileserver
+---
 {{ end }}
