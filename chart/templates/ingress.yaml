@@ -16,6 +16,12 @@ metadata:
 {{ toYaml $spec.ingress.annotations | indent 4 }}
 {{ end }}
 spec:
+{{ if $spec.ingress.tls }}
+  tls:
+    - hosts:
+        - {{ $spec.ingress.hostname }}
+      secretName: {{ $spec.ingress.hostname }}-tls
+{{ end }}
   rules:
   - host: {{ $spec.ingress.hostname }}
     http:
@@ -44,6 +50,12 @@ metadata:
 {{ toYaml $spec.ingress.annotations | indent 4 }}
 {{ end }}
 spec:
+{{ if $spec.ingress.tls }}
+  tls:
+    - hosts:
+        - {{ $spec.ingress.hostname }}
+      secretName: {{ $spec.ingress.hostname }}-tls
+{{ end }}
   rules:
   - host: {{ $spec.ingress.hostname }}
     http:
