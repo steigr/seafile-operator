@@ -1,0 +1,67 @@
+{{- $app := printf "%s-seafile" .Values.resource.name -}}
+{{- $spec := dict }}
+{{- $_ := merge $spec .Values.resource.spec .Values.default -}}
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: {{ $app }}
+  labels:
+    app: {{ $app }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  serviceName: {{ $app }}
+  replicas: {{ $spec.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.resource.name }}
+      resource: {{ $app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.resource.name }}
+        resource: {{ $app }}
+    spec:
+{{- if $spec.nodeSelector }}
+      nodeSelector:
+{{ toYaml $spec.nodeSelector | indent 8 }}
+{{ end -}}
+{{- if $spec.tolerations }}
+      tolerations:
+{{ toYaml $spec.tolerations | indent 8 }}
+{{ end }}
+      containers:
+        - name: server
+{{- with $spec.image }}
+          image: {{ .name }}:{{ .tag }}
+          imagePullPolicy: {{ .pullPolicy }}{{ end }}
+          ports:
+            - name: fileserver
+              containerPort: {{ $spec.fileserver.port }}
+            - name: http
+              containerPort: {{ $spec.http.port }}
+          envFrom:
+            - secretRef:
+                name: {{ $app }}
+            - configMapRef:
+                name: {{ $app }}
+          volumeMounts:
+            - name: data
+              mountPath: /seafile
+{{ if $spec.resources }}
+          resources:
+{{ toYaml $spec.resources | indent 12 }}
+{{ end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ $spec.storage.size }}
+{{ if $spec.storage.class }}
+        storageClassName: {{ $spec.storage.class }}
+{{ end }}

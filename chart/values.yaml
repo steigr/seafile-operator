@@ -1,1 +1,31 @@
-image: nginx
+default:
+  replicas: 1
+  image:
+    name: quay.io/steigr/seafile
+    tag: v6.2.9
+    pullPolicy: IfNotPresent
+  config:
+    url: ""
+  secret:
+    admin_email: "admin@example.com"
+    admin_password: "changeme"
+  fileserver:
+    port: 8082
+    externalPort: 8082
+  http:
+    port: 80
+    externalPort: 80
+  storage:
+    size: 10Gi
+    # class: "slow"
+  resources:
+    limits:
+      memory: 800Mi
+      cpu: 2000m
+    requests:
+      memory: 500Mi
+      cpu: 100m
+  ingress:
+    enabled: true
+    hostname: seafile.example.com
+    annotations: {}

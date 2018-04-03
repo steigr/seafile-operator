@@ -1,0 +1,19 @@
+{{- $app := printf "%s-seafile" .Values.resource.name -}}
+{{- $spec := dict }}
+{{- $_ := merge $spec .Values.resource.spec .Values.default -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $app }}
+  labels:
+    app: {{ $app }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  SEAFILE_SERVER_NAME: {{ $app }}
+  SEAFILE_IP_OR_DOMAIN: {{ $spec.ingress.hostname }}
+  SEAFILE_WEBSERVER_PORT: {{ printf "%.0f" $spec.http.externalPort | quote }}
+  SEAFILE_FILESERVER_PORT:  {{ printf "%.0f" $spec.fileserver.externalPort | quote }}
+  SEAFILE_DATA_DIR: "/seafile"
+  SEAFILE_SERVER_URL: {{ required "no spec.download.url given"   $spec.download.url | quote }}

@@ -1,0 +1,27 @@
+{{- $app := printf "%s-seafile" .Values.resource.name -}}
+{{- $spec := dict }}
+{{- $_ := merge $spec .Values.resource.spec .Values.default -}}
+{{ if $spec.ingress.enabled }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $app }}
+  labels:
+    app: {{ $app }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{ if $spec.ingress.annotations }}
+  annotations:
+{{ toYaml $spec.ingress.annotations | indent 4 }}
+{{ end }}
+spec:
+  rules:
+  - host: {{ $spec.ingress.hostname }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ $app }}
+          servicePort: http
+{{ end }}

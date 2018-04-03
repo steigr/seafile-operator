@@ -1,0 +1,27 @@
+{{- $app := printf "%s-seafile" .Values.resource.name -}}
+{{- $spec := dict }}
+{{- $_ := merge $spec .Values.resource.spec .Values.default -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $app }}
+  labels:
+    app: {{ $app }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: {{ .Values.resource.name }}
+    resource: {{ $app }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ $spec.http.externalPort }}
+      targetPort: http
+    - name: seafile
+      protocol: TCP
+      port: {{ $spec.fileserver.externalPort }}
+      # you may add this service/port to your ingress-tcp-map
+      targetPort: {{ $spec.fileserver.port }}
+  type: ClusterIP

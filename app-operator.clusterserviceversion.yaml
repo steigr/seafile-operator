@@ -7,19 +7,19 @@
 apiVersion: app.coreos.com/v1alpha1
 kind: ClusterServiceVersion-v1
 metadata:
-  name: example-app-operator.v0.0.1
+  name: seafile-operator.v0.0.1
   namespace: YOUR_NAMESPACE_HERE
 spec:
   install: 
     strategy: deployment
     spec:
       permissions:
-      - serviceAccountName: example-app-operator
+      - serviceAccountName: seafile-operator
         rules:
         - apiGroups:
-          - example.com
+          - app.stei.gr
           resources:
-          - example-apps
+          - seafiles
           verbs:
           - "*"
         - apiGroups:
@@ -28,6 +28,8 @@ spec:
           - pods
           - events
           - namespaces
+          - configmaps
+          - secrets
           verbs:
           - "*"
         - apiGroups:
@@ -40,20 +42,21 @@ spec:
           - apps
           - extensions
           resources:
-          - deployments
+          - statefulsets
+          - ingresses
           verbs:
           - "*"
       deployments: 
-      - name: example-app-operator
+      - name: seafile-operator
         spec:
           replicas: 1
           selector:
             matchLabels:
-              app: example-app-operator
+              app: seafile-operator
           template:
             metadata:
               labels:
-                app: example-app-operator
+                app: seafile-operator
             spec:
               containers:
                 - name: sao
@@ -64,28 +67,32 @@ spec:
                   imagePullPolicy: Always
               restartPolicy: Always
               terminationGracePeriodSeconds: 5
-              serviceAccountName: example-app-operator
-              serviceAccount: example-app-operator
+              serviceAccountName: seafile-operator
+              serviceAccount: seafile-operator
   customresourcedefinitions:
     owned:
-      - description: Represents a cluster of example apps
-        displayName: Example App
-        kind: ExampleApp
-        name: example-apps.example.com
+      - description: Seafile Server
+        displayName: Seafile Server
+        kind: Seafile
+        name: seafiles.app.stei.gr
         version: v1alpha1
         resources:
-          - kind: Deployment
+          - kind: StatefulSet
             version: v1beta2
           - kind: ReplicaSet
             version: v1beta2
           - kind: Pod
             version: v1
-        specDescriptors:
-          - description: The desired number of member Pods for the deployment.
-            displayName: Size
-            path: size
-            x-descriptors:
-              - 'urn:alm:descriptor:com.tectonic.ui:podCount'
+          - kind: Ingress
+            version: v1beta1
+          - kind: Service
+            version: v1
+          - kind: ConfigMap
+            version: v1
+          - kind: Secret
+            version: v1
+          - kind: PersistentVolumeClaim
+            version: v1
         statusDescriptors:
           - description: The current status of the application.
             displayName: Status
@@ -98,18 +105,22 @@ spec:
             x-descriptors:
               - 'urn:alm:descriptor:io.kubernetes.phase:reason'
   keywords:
-    - example
-    - app
-  displayName: Example Application
+    - seafile
+    - cloud
+    - files
+  displayName: Seafile Server
   provider:
-    name: Example Corp
-    url: www.example.com
+    name: steigr
+    url: stei.gr/operator/seafile
   maturity: alpha
   version: 0.0.1
   maintainers:
-    - email: corp@example.com
-      name: Some Corp
-  description: Main enterprise application providing business critical features with high availabilty and no manual intervention.
+    - email: me@stei.gr
+      name: steigr
+  description: Seafile Server
+  icon:
+    - base64data: >-
+        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
   labels:
-    alm-owner-enterprise-app: example-app-operator
-    alm-status-descriptors: example-app-operator.v0.0.1
+    alm-owner-enterprise-app: seafile-operator
+    alm-status-descriptors: seafile-operator.v0.0.1

@@ -1,4 +1,4 @@
 apiVersion: v1
-description: A Helm chart for testing stateless app operator
-name: helloworld
+description: Seafile Server
+name: seafile
 version: 0.1.0
