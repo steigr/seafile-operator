@@ -36,6 +36,10 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     ingress.kubernetes.io/rewrite-target: "/"
+    ingress.kubernetes.io/proxy-send-timeout: '7200'
+    ingress.kubernetes.io/proxy-body-size: '0'
+    ingress.kubernetes.io/proxy-read-timeout: '7200'
+    ingress.kubernetes.io/configuration-snippet: proxy_intercept_errors off;
 {{ if $spec.ingress.annotations }}
 {{ toYaml $spec.ingress.annotations | indent 4 }}
 {{ end }}

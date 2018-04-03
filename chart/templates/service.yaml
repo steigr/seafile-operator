@@ -19,9 +19,8 @@ spec:
       protocol: TCP
       port: {{ $spec.http.externalPort }}
       targetPort: http
-    - name: seafile
+    - name: fileserver
       protocol: TCP
       port: {{ $spec.fileserver.externalPort }}
-      # you may add this service/port to your ingress-tcp-map
-      targetPort: {{ $spec.fileserver.port }}
+      targetPort: fileserver
   type: ClusterIP
